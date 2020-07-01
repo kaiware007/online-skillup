@@ -2,13 +2,20 @@
   <div>
     <p>
       <img class="logo" src="../images/logo.jpg" alt="ロゴ">
-      <span class="sample">Hoge</span>
+      <span class="sample">テスト</span>
     </p>
-    <MyComponent :message="$data.message" />
+    <p>
+      ユーザー名<input v-model="$data.name" type="text">
+    </p>
+
     <form @submit="onSubmit">
-      <input v-model="$data.text" type="text">
+      メッセージ<input v-model="$data.text" type="text">
       <button type="submit">送信</button>
     </form>
+    <p>
+      ログ<br>
+      <MyComponent :messageList="$data.messageList" />
+    </p>
   </div>
 </template>
 
@@ -25,7 +32,8 @@ export default Vue.extend({
   },
   data() {
     return {
-      message: '',
+      messageList: [],
+      name: '',
       text: ''
     };
   },
@@ -34,9 +42,12 @@ export default Vue.extend({
       console.log('connected!');
     });
 
-    socket.on('send', (message) => {
-      console.log(message);
-      this.$data.message = message;
+    socket.on('send', (name, text) => {
+      console.log(name + ' ' + text);
+      this.$data.messageList.unshift({
+        name: name,
+        text: text
+      });
     });
   },
   methods: {
@@ -45,7 +56,7 @@ export default Vue.extend({
      */
     onSubmit(e) {
       e.preventDefault();
-      socket.emit('send', this.$data.text);
+      socket.emit('send', this.$data.name, this.$data.text);
     }
   }
 });
